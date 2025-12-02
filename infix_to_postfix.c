@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
+#include <header.h>
 
 struct NODE     /*구조체 이름*/
 {
@@ -20,20 +17,46 @@ int pop(struct NODE *target);
 
 int main()
 {
-    int fomular;
+    unsigned infix;
 
     struct NODE *top = malloc(sizeof(struct NODE));     /*구조체를 쓰기 위해 변수로 선언해야함*/
 
     top -> next = NULL;
 
     printf("수식을 입력해주세요: ");
-    scanf("%u", &fomular);
-    top -> data = fomular;
+    scanf("%u", &infix);
 
-    push(top, fomular);
-    pop(top);
+    for(int i=1 ; i<=(입력받은 문장 길이) ; i++)
+    {
+        if(문장 내에 문자가 숫자)
+        {
+            postfix -> data = 문장 내에 숫자;
+        }
+        if(문장 내에 문자가 문자(+,-,*,/))
+        {
+            push(top, 문장 내에 문자);
+        }
 
-    printf("후위식으로 바꾼 식은 다음과 같습니다.: %d", fomular);
+        for(int j=1 ; j<=(받은 문자 갯수?); j++)
+        {
+            if(사칙연산 우선순위 비교해서 우선순위 높음)
+            {
+                pop(top);
+            }
+            else if(우선순위 비교 -> 우선순위 낮음)
+            {
+                push(top, 문자);
+            }
+
+            if(받은 문자가 ')')
+            {
+                pop(top) /*스택 내에 '('까지 모든 문자 pop*/
+            }
+        }
+
+    }
+
+    printf("후위식으로 바꾼 식은 다음과 같습니다.: %d", postfix);
 
     struct NODE *curr = top -> next;
     while(curr != NULL)     /*할당한 동적메모리를 해제*/
@@ -54,7 +77,7 @@ void push(struct NODE *target, int data)
 
     pushNode -> next = target -> next;
     target -> next = pushNode;
-}/*push -> node를 추가함으로써 구현*/
+}
 
 int pop(struct NODE *target)
 {
@@ -66,7 +89,3 @@ int pop(struct NODE *target)
 
     return popData;
 }
-/*pop: call by address를 통해 pop를 계속 바꿔서 구현*/
-/*https://studyc.tistory.com/21 :c언어 함수에 대하여 잘 설명함, call by value, call by address 등*/
-
-/*수정 테스트*/
