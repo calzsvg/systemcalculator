@@ -30,7 +30,7 @@ void appendNode(Node** head, int data) {
 void printList(Node* head) {
     Node* curr = head;
     while (curr != NULL) {
-        printf("%d", curr->data);
+        printf("%d ", curr->data);
         curr = curr->next;
     }
     printf("\n");
