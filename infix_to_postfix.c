@@ -68,3 +68,5 @@ int pop(struct NODE *target)
 }
 /*pop: call by address를 통해 pop를 계속 바꿔서 구현*/
 /*https://studyc.tistory.com/21 :c언어 함수에 대하여 잘 설명함, call by value, call by address 등*/
+
+/*수정 테스트*/
