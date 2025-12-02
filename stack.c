@@ -5,10 +5,14 @@ void initStack(Stack* s) {
 }
 
 void push(Stack* s, char data) {
-    StackNode* temp = (StackNode*)malloc(sizeof(StackNode));
-    temp->data = data;
-    temp->next = s->top;
-    s->top = temp;
+    StackNode* newNode = (StackNode*)malloc(sizeof(StackNode));
+    if (newNode == NULL) {
+        printf("Out of Memory\n");
+        exit(1);
+    }
+    newNode->data = data;
+    newNode->next = s->top;
+    s->top = newNode;
 }
 
 char pop(Stack* s) {
@@ -16,18 +20,19 @@ char pop(Stack* s) {
         return 0;
     }
     StackNode* temp = s->top;
-    char item = temp->data;
+    char popData = temp->data;
+    
     s->top = s->top->next;
     free(temp);
-    return item;
+    
+    return popData;
 }
 
 int isEmpty(Stack* s) {
-    if (s->top == NULL) {
+    if (s->top == NULL)
         return 1;
-    } else {
+    else
         return 0;
-    }
 }
 
 char peek(Stack* s) {

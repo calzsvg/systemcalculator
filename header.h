@@ -3,13 +3,14 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
 typedef struct Node {
     int data;
     struct Node* next;
-    struct Node* prev;  // 이전 노드
+    struct Node* prev;
 } Node;
 
-// 연산자 스택
 typedef struct StackNode {
     char data;
     struct StackNode* next;
@@ -24,7 +25,6 @@ void appendNode(Node** head, int data);
 void printList(Node* head);
 void freeList(Node* head);
 
-//스택
 void initStack(Stack* s);
 void push(Stack* s, char data);
 char pop(Stack* s);

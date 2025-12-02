@@ -2,6 +2,10 @@
 
 Node* createNode(int data) {
     Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("Out of Memory\n");
+        exit(1);
+    }
     newNode->data = data;
     newNode->next = NULL;
     newNode->prev = NULL;
@@ -14,29 +18,29 @@ void appendNode(Node** head, int data) {
     if (*head == NULL) {
         *head = newNode;
     } else {
-        Node* temp = *head;
-        while (temp->next != NULL) {
-            temp = temp->next;
+        Node* curr = *head;
+        while (curr->next != NULL) {
+            curr = curr->next;
         }
-        temp->next = newNode;
-        newNode->prev = temp;
+        curr->next = newNode;
+        newNode->prev = curr;
     }
 }
 
 void printList(Node* head) {
-    Node* ptr = head;
-    while (ptr != NULL) {
-        printf("%d", ptr->data);
-        ptr = ptr->next;
+    Node* curr = head;
+    while (curr != NULL) {
+        printf("%d", curr->data);
+        curr = curr->next;
     }
     printf("\n");
 }
 
 void freeList(Node* head) {
-    Node* temp;
-    while (head != NULL) {
-        temp = head;
-        head = head->next;
-        free(temp);
+    Node* curr = head;
+    while (curr != NULL) {
+        Node* next = curr->next;
+        free(curr);
+        curr = next;
     }
 }
