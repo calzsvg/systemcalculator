@@ -43,59 +43,79 @@ void addOperatorToken(Token* head, char op) {
 Token* trans_token(const char *infix_str) {
     
     int len = strlen(infix_str);
-    char *temp_str = (char*)malloc(len * 2 + 1);
-    if (temp_str == NULL) error1("Memory allocation failed.");
-    int j = 0;
+    char *clean_str = (char*)malloc(len + 1);
+    if (clean_str == NULL) error1("Memory allocation failed.");
 
+    int k = 0;
     for (int i = 0; i < len; i++) {
-        char x = infix_str[i];
+        if (!isspace(infix_str[i])) {
+            clean_str[k++] = infix_str[i];
+        }
+    }
+    clean_str[k] = '\0';
 
-        if (isspace(x)) continue;
+    int clean_str_len = k;
+    char *temp_str = (char*)malloc(clean_str_len * 2 + 1);
+    if (temp_str == NULL) {
+        free(clean_str); 
+        error1("Memory allocation failed.");
+    }
+    
+    int j = 0;
+    for (int i = 0; i < clean_str_len; i++) {
+        char x = clean_str[i];
 
         if (!isdigit(x) && !strchr("+-*/().", x)) {
+            free(clean_str);
             free(temp_str);
-            error1("Invalid character");
+            error1("Invalid character found");
         }
 
-        if (isdigit(x) && (i + 1 < len) && infix_str[i + 1] == '(') {
+        if (isdigit(x) && (i + 1 < clean_str_len) && clean_str[i + 1] == '(') {
             temp_str[j++] = x;
             temp_str[j++] = '*';
-        } else if (x == ')' && (i + 1 < len) && (isdigit(infix_str[i + 1]) || infix_str[i + 1] == '(')) {
+        } 
+
+        else if (x == ')' && (i + 1 < clean_str_len) && (isdigit(clean_str[i + 1]) || clean_str[i + 1] == '(')) {
             temp_str[j++] = x;
             temp_str[j++] = '*';
-        } else {
+        } 
+        else {
             temp_str[j++] = x;
         }
     }
     temp_str[j] = '\0';
     
-    Token* token_head = newTokenList();
+    free(clean_str); 
+
+    Token* token_head = initTokenList();
     Node* current_number_head = NULL;
-    int in_number = 0;
+    int is_number = 0;
     
     for (int i = 0; temp_str[i] != '\0'; i++) {
         char x = temp_str[i];
 
         if (isdigit(x) || x == '.') {
-            if (!in_number) {
+            if (!is_number) {
                 current_number_head = NULL; 
-                in_number = 1;
+                is_number = 1;
             }
 
             appendNode(&current_number_head, (x != '.') ? (x - '0') : -1);
 
         } else if (strchr("+-*/()", x)) {
-            if (in_number) {
-
+            if (is_number) {
+                
                 addNumberToken(token_head, current_number_head);
-                in_number = 0;
+                is_number = 0;
             }
 
             addOperatorToken(token_head, x);
         }
     }
     
-    if (in_number) {
+
+    if (is_number) {
         addNumberToken(token_head, current_number_head);
     }
     
