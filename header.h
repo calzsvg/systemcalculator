@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 typedef struct Node {
     int data;
@@ -30,5 +31,20 @@ void push(Stack* s, char data);
 char pop(Stack* s);
 int isEmpty(Stack* s);
 char peek(Stack* s);
+
+typedef struct Token {
+    char type;
+    char op;
+    Node* number_head;
+    struct Token* next;
+} Token;
+
+Token* newTokenList();
+Token* trans_token(const char *infix_str);
+
+void addNumberToken(Token* head, Node* num_list);
+void addOperatorToken(Token* head, char op);
+void freeTokenList(Token* head);
+
 
 #endif
