@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include <assert.h>
 
+/*#include "header.h"*/
+
 struct datas
 {
     enum {operator, value} kind;
@@ -67,8 +69,6 @@ void push(datas d, stack *stk)
 
 datas pop(stack *stk)
 {
-    assert(!empty(stk));
-
     datas data;
     elem *popnode;
 
