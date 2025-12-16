@@ -117,7 +117,7 @@ Node* sub(Node* A, Node* B) {
 }
 
 //한자릿 수를 곱할때의 함수
-Node* multonw(Node* head, int digit) {
+Node* multone(Node* head, int digit) {
     if (digit == 0) return stringToList("0");
     if (digit == 1) {
         Node* zero = stringToList("0");
@@ -175,5 +175,79 @@ Node* mult(Node* A, Node* B) {
     }
     
     removeLeadingZeros(&result);
+    return result;
+}
+
+// 나눗셈
+
+//몫 계산
+Node* integerDiv(Node* A, Node* B) {
+
+    Node* quotient = NULL;
+    Node* remainder = stringToList("0");
+    Node* curr = A;
+
+    while (curr != NULL) {
+        appendNode(&remainder, curr->data);
+        removeLeadingZeros(&remainder);
+
+        int count = 0;
+        // 몫만큼 뺄셈 반복
+        while (compare(remainder, B) >= 0) {
+            Node* temp = sub(remainder, B);
+            freeList(remainder);
+            remainder = temp;
+            count++;
+        }
+        appendNode(&quotient, count);
+        curr = curr->next;
+    }
+    removeLeadingZeros(&quotient);
+    freeList(remainder);
+    return quotient;
+}
+
+// 몫 계산, 나머지 있을 시 소수점 찍음, 10번 소수점 계산
+Node* division(Node* A, Node* B) {
+
+    // 몫 계산
+    Node* result = integerDiv(A, B);
+
+    // 나머지 계산
+    Node* prod = mult(result, B);
+    Node* remainder = sub(A, prod);
+    freeList(prod);
+
+    // 나머지가 0이면 몫(정수)만 반환
+    if (remainder->data == 0 && remainder->next == NULL) {
+        freeList(remainder);
+        return result;
+    }
+
+    // 리스트에 -1을 추가 (출력할 때 '.'으로 변환됨 (linkedlist.c printList 함수 참고))
+    appendNode(&result, -1); 
+
+    int precision = 10; // 소수점 10자리까지 계산
+    for (int i = 0; i < precision; i++) {
+        if (remainder->data == 0 && remainder->next == NULL) break;
+
+        // 나머지 * 10해서 몫으로 만든 후 다시 integerDiv 반복
+        appendNode(&remainder, 0);
+        removeLeadingZeros(&remainder);
+
+        Node* digitNode = integerDiv(remainder, B);
+        appendNode(&result, digitNode->data);
+        Node* tempProd = mult(digitNode, B);
+        Node* nextRem = sub(remainder, tempProd);
+
+        // 리스트 해제
+        freeList(remainder);
+        freeList(tempProd);
+        freeList(digitNode);
+
+        remainder = nextRem;
+    }
+    
+    freeList(remainder);
     return result;
 }

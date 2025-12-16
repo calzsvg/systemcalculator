@@ -46,7 +46,17 @@ void addNumberToken(Token* head, Node* num_list);
 void addOperatorToken(Token* head, char op);
 void freeTokenList(Token* head);
 
+Node* stringToList(char* str); 
+Node* getTail(Node* head);
+void insertAtHead(Node** head, int data);
+void removeLeadingZeros(Node** head);
+int compare(Node* A, Node* B);
+
+
+Node* add(Node* A, Node* B); 
+Node* sub(Node* A, Node* B);
 Node* mult(Node* A, Node* B);
+Node* division(Node* A, Node* B);
 
 
 #endif

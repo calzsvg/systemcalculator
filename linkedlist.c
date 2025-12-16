@@ -30,7 +30,9 @@ void appendNode(Node** head, int data) {
 void printList(Node* head) {
     Node* curr = head;
     while (curr != NULL) {
-        printf("%d ", curr->data);
+        if (curr->data == -1) printf(".");       // 소수점
+        else if (curr->data == -2) printf("-");  // 마이너스
+        else printf("%d", curr->data);
         curr = curr->next;
     }
     printf("\n");

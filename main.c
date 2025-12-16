@@ -20,7 +20,6 @@ int main() {
     Node* n1 = stringToList(s1);
     Node* n2 = stringToList(s2);
     Node* result = NULL;
-    int isNegative = 0;
     
     if (op == '+') {
         result = add(n1, n2);
@@ -29,17 +28,20 @@ int main() {
         if (compare(n1, n2) >= 0) {
             result = sub(n1, n2);
         } else {
-            isNegative = 1;
-            result = sub(n2, n1);
+            result = sub(n2, n1);       
+            insertAtHead(&result, -2);
         }
     }
     else if (op == '*') {  
         result = mult(n1, n2);
     }
+    else if (op == '/') {
+        result = division(n1, n2); 
+    }
+
 
     // 결과 출력
     printf("Result : ");
-    if (isNegative) printf("-");
     printList(result);
 
     // 메모리 해제
