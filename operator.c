@@ -115,3 +115,65 @@ Node* sub(Node* A, Node* B) {
     removeLeadingZeros(&res);
     return res;
 }
+
+//한자릿 수를 곱할때의 함수
+Node* multonw(Node* head, int digit) {
+    if (digit == 0) return stringToList("0");
+    if (digit == 1) {
+        Node* zero = stringToList("0");
+        Node* res = add(head, zero);
+        freeList(zero);
+        return res;
+    }
+
+    Node* res = NULL;
+    Node* curr = getTail(head);
+    int carry = 0;
+
+    while (curr != NULL || carry != 0) {
+        int sum = carry;
+        if (curr != NULL) {
+            sum += (curr->data * digit);
+            curr = curr->prev;
+        }
+
+        carry = sum / 10;
+        insertAtHead(&res, sum % 10);
+    }
+    return res;
+}
+//큰 수를 곱할때의 함수
+Node* mult(Node* A, Node* B) {
+    if ((A->data == 0 && A->next == NULL) || (B->data == 0 && B->next == NULL)) {
+        return stringToList("0");
+    }
+
+    Node* result = stringToList("0");
+    Node* tB = getTail(B);
+    int shift = 0;
+
+    while (tB != NULL) {
+        int digit = tB->data;
+        
+        if (digit != 0) {
+            Node* partial = multone(A, digit);
+            
+            for (int i = 0; i < shift; i++) {
+                appendNode(&partial, 0); 
+            }
+
+            Node* newResult = add(result, partial);
+            
+            freeList(result);
+            freeList(partial);
+            
+            result = newResult;
+        }
+
+        shift++;
+        tB = tB->prev;
+    }
+    
+    removeLeadingZeros(&result);
+    return result;
+}
