@@ -14,6 +14,45 @@ Node* stringToList(char* str) {
     if (head == NULL) appendNode(&head, 0);
     return head;
 }
+// 소수점 아래 자릿수 세기
+int getDecimalCount(Node* head) {
+    Node* curr = head;
+    int count = 0;
+    int foundDot = 0;
+    while (curr != NULL) {
+        if (curr->data == -1) {
+            foundDot = 1;
+            count = 0;
+        } else if (foundDot) {
+            count++;
+        }
+        curr = curr->next;
+    }
+    return foundDot ? count : 0;
+}
+
+// 두 수의 소수점 자릿수를 똑같이 맞춤 (덧셈, 뺄셈용)
+void alignDecimals(Node* A, Node* B) {
+    int decimalA = getDecimalCount(A);
+    int decimalB = getDecimalCount(B);
+    
+    // 둘 다 소수점 없으면 패스
+    if (decimalA == 0 && decimalB == 0 && getTail(A)->data != -1 && getTail(B)->data != -1) return;
+
+    // A나 B 중 하나만 정수라면 끝에 점(-1)을 붙여줌
+    if (decimalA == 0 && getTail(A)->data != -1) appendNode(&A, -1);
+    if (decimalB == 0 && getTail(B)->data != -1) appendNode(&B, -1);
+
+    decimalA = getDecimalCount(A);
+    decimalB = getDecimalCount(B);
+
+    // 자릿수 차이만큼 0 추가
+    if (decimalA < decimalB) {
+        for (int i = 0; i < (decimalB - decimalA); i++) appendNode(&A, 0);
+    } else if (decimalB < decimalA) {
+        for (int i = 0; i < (decimalA - decimalB); i++) appendNode(&B, 0);
+    }
+}
 
 // 리스트 꼬리 찾기
 Node* getTail(Node* head) {
@@ -72,12 +111,20 @@ int compare(Node* A, Node* B) {
 
 // 덧셈
 Node* add(Node* A, Node* B) {
+    alignDecimals(A, B);
     Node* res = NULL;
     Node* tA = getTail(A);
     Node* tB = getTail(B);
     int carry = 0;
-
+    
     while (tA != NULL || tB != NULL || carry != 0) {
+
+        if (tA != NULL && tA->data == -1) {
+            insertAtHead(&res, -1);
+            tA = tA->prev;
+            if (tB != NULL) tB = tB->prev;
+        }
+
         int sum = carry;
         if (tA != NULL) { sum += tA->data; tA = tA->prev; }
         if (tB != NULL) { sum += tB->data; tB = tB->prev; }
@@ -90,12 +137,19 @@ Node* add(Node* A, Node* B) {
 
 // 뺄셈
 Node* sub(Node* A, Node* B) {
+    alignDecimals(A, B);
     Node* res = NULL;
     Node* tA = getTail(A);
     Node* tB = getTail(B);
     int borrow = 0;
 
     while (tA != NULL) {
+        if (tA->data == -1) {
+            insertAtHead(&res, -1);
+            tA = tA->prev;
+            if (tB != NULL) tB = tB->prev;
+            continue;
+        }
         int valA = tA->data;
         int valB = (tB != NULL) ? tB->data : 0;
         
