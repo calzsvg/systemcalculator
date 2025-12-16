@@ -33,6 +33,9 @@ int main() {
             result = sub(n2, n1);
         }
     }
+    else if (op == '*') {  
+        result = mult(n1, n2);
+    }
 
     // 결과 출력
     printf("Result : ");

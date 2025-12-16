@@ -46,5 +46,7 @@ void addNumberToken(Token* head, Node* num_list);
 void addOperatorToken(Token* head, char op);
 void freeTokenList(Token* head);
 
+Node* mult(Node* A, Node* B);
+
 
 #endif
