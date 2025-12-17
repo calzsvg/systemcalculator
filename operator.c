@@ -10,6 +10,9 @@ Node* stringToList(char* str) {
         if (isdigit(str[i])) {
             appendNode(&head, str[i] - '0');
         }
+        else if (str[i] == '.') {
+            appendNode(&head, -1); //곱셈에서의 소숫점 처리
+        }
     }
     if (head == NULL) appendNode(&head, 0);
     return head;
@@ -170,21 +173,26 @@ Node* sub(Node* A, Node* B) {
     return res;
 }
 
-//한자릿 수를 곱할때의 함수
+/*곱셈 : 12.3 * 1.23 이 있을 경우 123 * 123 처럼 정수로 만들고 곱셈을 수행한 후 소숫점을 찍는 방식
+1. 소숫점 자릿수 파악
+2. 정수 곱셈
+3. 소숫점 입력*/
+
+// 한 자리 수 곱셈 (소수점 무시 추가)
 Node* multone(Node* head, int digit) {
     if (digit == 0) return stringToList("0");
-    if (digit == 1) {
-        Node* zero = stringToList("0");
-        Node* res = add(head, zero);
-        freeList(zero);
-        return res;
-    }
-
+    
     Node* res = NULL;
     Node* curr = getTail(head);
     int carry = 0;
 
     while (curr != NULL || carry != 0) {
+        // 소수점(-1) 건너뜀
+        if (curr != NULL && curr->data == -1) {
+            curr = curr->prev;
+            continue; 
+        }
+
         int sum = carry;
         if (curr != NULL) {
             sum += (curr->data * digit);
@@ -196,26 +204,42 @@ Node* multone(Node* head, int digit) {
     }
     return res;
 }
-//큰 수를 곱할때의 함수
+
+// 전체 곱셈 (소수점 처리 수정)
 Node* mult(Node* A, Node* B) {
+    // 0인지 확인 (단순 0 혹은 0.0 등)
+    // 리스트가 '0' 하나뿐인 경우만 빠르게 처리하거나, 아래 로직에 맡김.
     if ((A->data == 0 && A->next == NULL) || (B->data == 0 && B->next == NULL)) {
         return stringToList("0");
     }
 
+    // 소수점 자릿수 미리 계산
+    int cntA = getDecimalCount(A);
+    int cntB = getDecimalCount(B);
+    int totalDecimals = cntA + cntB;
+
+    // 정수 곱셈 수행 (소수점 무시)
     Node* result = stringToList("0");
     Node* tB = getTail(B);
     int shift = 0;
 
     while (tB != NULL) {
+        // 소수점 건너뜀
+        if (tB->data == -1) {
+            tB = tB->prev;
+            continue;
+        }
+
         int digit = tB->data;
         
         if (digit != 0) {
+            // 소수점을 무시하고 정수 곱셈 수행
             Node* partial = multone(A, digit);
             
+            // 자릿수 시프트 (10의 거듭제곱 꼴 곱셈)
             for (int i = 0; i < shift; i++) {
                 appendNode(&partial, 0); 
             }
-
             Node* newResult = add(result, partial);
             
             freeList(result);
@@ -228,7 +252,40 @@ Node* mult(Node* A, Node* B) {
         tB = tB->prev;
     }
     
+    // 결과에 소수점 합침
+    if (totalDecimals > 0) {
+        Node* curr = getTail(result);
+        
+        // 소수점 위치 (뒤에서부터 totalDecimals 만큼 이동)
+        for (int i = 0; i < totalDecimals; i++) {
+            if (curr->prev == NULL) {
+                // 자릿수가 부족하면 앞에 0 추가 (예: 12 -> 012 -> 0.12)
+                insertAtHead(&result, 0);
+                curr = result; // curr는 새로 추가된 맨 앞 '0'을 가리킴
+            } else {
+                curr = curr->prev;
+            }
+        }
+        // curr 위치 바로 뒤에 소수점(-1) 노드 삽입
+        // (예: 123, 소수점 1자리 -> 2(curr) 뒤에 점 -> 12.3)
+        Node* dotNode = createNode(-1);
+        dotNode->next = curr->next;
+        dotNode->prev = curr;
+        
+        if (curr->next != NULL) {
+            curr->next->prev = dotNode;
+        }
+        curr->next = dotNode;
+    }
+
+    // 불필요한 앞쪽 0 제거
     removeLeadingZeros(&result);
+
+    // .1 같이 나올경우 0.1로 변환
+    if (result->data == -1) {
+        insertAtHead(&result, 0);
+    }
+
     return result;
 }
 
