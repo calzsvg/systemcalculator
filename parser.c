@@ -88,7 +88,7 @@ Token* trans_token(const char *infix_str) {
     
     free(clean_str); 
 
-    Token* token_head = initTokenList();
+    Token* token_head = newTokenList();
     Node* current_number_head = NULL;
     int is_number = 0;
     
