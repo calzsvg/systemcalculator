@@ -1,9 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <ctype.h>
-#include <assert.h>
-
-/*#include "header.h"*/
+#include "header.h"
 
 struct datas
 {
@@ -150,4 +145,72 @@ void infix_to_postfix(const char *str)
         datas popped = pop(&op_stack);
         printf("%c ", popped.uni.op);   /*연산자 출력2*/
     }
+}
+
+#include "header.h"
+
+int priority(char op) 
+{
+        switch (op) 
+        {
+        case '*': 
+        case '/': 
+            return 2;
+        case '+': 
+        case '-': 
+            return 1;
+        default:  
+            return 0;       /*연산자 우선순위 부여*/
+        }
+}
+
+// 후위 표기법 리스트를 가지고 실제 계산 수행
+Node* evaluatePostfix(Token* postfixHead)
+{
+    // Node*를 저장하는 스택 필요 (계산 결과들을 담아둠)
+    // 1. 숫자를 만나면 스택에 push
+    // 2. 연산자를 만나면 스택에서 숫자(Node*) 2개를 pop
+    // 3. 연산 수행 (add, sub 등) 후 결과를 다시 스택에 push
+}
+
+Token* infixToPostfixTokens(Token* infixTokens) {
+    Token* postfixHead = newTokenList();
+    Stack opStack;
+    initStack(&opStack);
+
+    Token* curr = infixTokens->next; /*헤더 다음부터 시작*/
+    while (curr != NULL) {
+        if (curr->type == 'N') /*숫자, parser.c의 타입 정의를 가져옴*/
+        {
+            addNumberToken(postfixHead, curr->number_head);
+        }
+        
+        else if (curr->op == '(')
+        {
+            push(&opStack, '(');
+        }
+        
+        else if (curr->op == ')')
+        {
+            while (!isEmpty(&opStack) && peek(&opStack) != '(') /*isEmpty, pop, push: stack.c에서 가져옴*/
+            {
+                addOperatorToken(postfixHead, pop(&opStack));
+            }
+            pop(&opStack); // '(' 제거
+        }
+        
+        else /*연산자*/
+        {
+            while (!isEmpty(&opStack) && priority(peek(&opStack)) >= priority(curr->op))    /*연산자 우선순위 고려*/
+            {
+                addOperatorToken(postfixHead, pop(&opStack));
+            }
+            push(&opStack, curr->op);
+        }
+        curr = curr->next;
+    }
+    while (!isEmpty(&opStack)) {
+        addOperatorToken(postfixHead, pop(&opStack));
+    }
+    return postfixHead;
 }

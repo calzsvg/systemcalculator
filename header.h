@@ -29,7 +29,7 @@ void freeList(Node* head);
 void initStack(Stack* s);
 void push(Stack* s, char data);
 char pop(Stack* s);
-int isEmpty(Stack* s);
+int  isEmpty(Stack* s);
 char peek(Stack* s);
 
 typedef struct Token {
@@ -40,7 +40,9 @@ typedef struct Token {
 } Token;
 
 Token* newTokenList();
-Token* trans_token(const char *infix_str);
+Token* trans_token(const char *infix_str);  /*입력을 받아드리는 곳*/
+Token* infix_postfix(Token* infixTokens);   /*중위식 -> 후위식*/
+int priority(char op);                      /*연산자 우선순위 부여*/
 
 void addNumberToken(Token* head, Node* num_list);
 void addOperatorToken(Token* head, char op);
