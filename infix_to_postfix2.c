@@ -56,7 +56,7 @@ Token* infix_postfix(Token* infixTokens)
 
     while (!isEmpty(&opStack))
     {
-        addOperatorToken(postfixHead, pop(&opStack));
+        addOperatorToken(postfixHead, pop(&opStack));   /*연산자가 들어있는 opstack을 꺼내서 리스트에 넣음 -> 최종 후위식 완성*/
     }
 
     return postfixHead;
