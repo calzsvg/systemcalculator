@@ -16,29 +16,20 @@ void push(Stack* s, char data) {
 }
 
 char pop(Stack* s) {
-    if (isEmpty(s)) {
-        return 0;
-    }
+    if (isEmpty(s)) return 0;
     StackNode* temp = s->top;
     char popData = temp->data;
-    
     s->top = s->top->next;
     free(temp);
-    
     return popData;
 }
 
 int isEmpty(Stack* s) {
-    if (s->top == NULL)
-        return 1;
-    else
-        return 0;
+    return (s->top == NULL);
 }
 
 char peek(Stack* s) {
-    if (isEmpty(s)) {
-        return 0;
-    }
+    if (isEmpty(s)) return 0;
     return s->top->data;
 }
 
@@ -49,7 +40,7 @@ void initNodeStack(NodeStack* s) {
 void pushNode(NodeStack* s, Node* n) {
     NodeStackNode* newNode = (NodeStackNode*)malloc(sizeof(NodeStackNode));
     if (newNode == NULL) {
-        printf("메모리 초과");
+        printf("Out of Memory\n");
         exit(1);
     }
     newNode->data = n;
@@ -58,10 +49,13 @@ void pushNode(NodeStack* s, Node* n) {
 }
 
 Node* popNode(NodeStack* s) {
-    if (s->top >= 0) {
-        return s->items[(s->top)--];
-    } else {
+    if (s->top == NULL) {
         printf("잘못된 수식입니다.");
         exit(1);
     }
+    NodeStackNode* temp = s->top;
+    Node* poppedNode = temp->data;
+    s->top = s->top->next;
+    free(temp);
+    return poppedNode;
 }

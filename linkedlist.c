@@ -29,10 +29,15 @@ void appendNode(Node** head, int data) {
 
 void printList(Node* head) {
     Node* curr = head;
+    if (curr == NULL) return;
+    if (curr->data == -2) {
+        printf("-");
+        curr = curr->next;
+    }
+
     while (curr != NULL) {
-        if (curr->data == -1) printf(".");       // 소수점
-        else if (curr->data == -2) printf("-");  // 마이너스
-        else printf("%d", curr->data);
+        if (curr->data == -1) printf("."); // 소수점
+        else if (curr->data >= 0) printf("%d", curr->data); // 숫자만
         curr = curr->next;
     }
     printf("\n");

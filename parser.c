@@ -122,4 +122,3 @@ Token* trans_token(const char *infix_str) {
     free(temp_str);
     return token_head;
 }
-
