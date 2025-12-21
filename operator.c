@@ -298,3 +298,96 @@ Node* mult(Node* A, Node* B) {
     return result;
 }
     
+// 나눗셈
+
+// 정수 나눗셈
+Node* integerDivOnly(Node* A, Node* B) {
+    Node* quotient = NULL;
+    Node* remainder = stringToList("0");
+    Node* curr = A;
+
+
+    while (curr != NULL) {
+        appendNode(&remainder, curr->data);
+        removeLeadingZeros(&remainder);
+
+        int count = 0;
+        // 뺄셈 반복
+        while (compare(remainder, B) >= 0) {
+            Node* temp = sub(remainder, B);
+            freeList(remainder);
+            remainder = temp;
+            count++;
+        }
+        appendNode(&quotient, count);
+        curr = curr->next;
+    }
+    
+    removeLeadingZeros(&quotient);
+    freeList(remainder);
+    return quotient;
+}
+
+// 소수 나눗셈 
+Node* division(Node* A, Node* B) {
+    // 원본 수가 수정되지 않도록 복사해서 계산
+    Node* copyA = deepCopy(A);
+    Node* copyB = deepCopy(B);
+    alignDecimals(copyA, copyB);
+
+    // 소수점 제거
+    Node* intA = copyAsInteger(copyA);
+    Node* intB = copyAsInteger(copyB);
+
+    // 리스트 해제
+    freeList(copyA);
+    freeList(copyB);
+
+    // 정수 나눗셈
+    Node* result = integerDivOnly(intA, intB);
+    Node* prod = mult(result, intB);
+    Node* remainder = sub(intA, prod);
+    freeList(prod);
+
+    // 나머지 0이면 바로 리턴
+    if (remainder->data == 0 && remainder->next == NULL) {
+        freeList(remainder);
+        freeList(intA);
+        freeList(intB);
+        return result;
+    }
+
+    // 소수점 아래 계산
+    appendNode(&result, -1); // '.' 추가
+
+    int precision = 12; // 12자리까지 계산
+    for (int i = 0; i < precision; i++) {
+        if (remainder->data == 0 && remainder->next == NULL) break;
+
+        // 나머지 * 10 > 다시 다음 자릿수 계산
+        appendNode(&remainder, 0); 
+        removeLeadingZeros(&remainder);
+
+        Node* digitNode = integerDivOnly(remainder, intB);
+        
+        // digitNode 앞에 0이 붙어있을 수 있기 때문에 tail값 사용
+        appendNode(&result, getTail(digitNode)->data);
+
+        // 다음 나머지 계산
+        Node* tempProd = mult(digitNode, intB);
+        Node* nextRem = sub(remainder, tempProd);
+
+        freeList(remainder);
+        freeList(tempProd);
+        freeList(digitNode);
+
+        remainder = nextRem;
+    }
+
+    // 메모리 해제
+    freeList(remainder);
+    freeList(intA);
+    freeList(intB);
+
+    return result;
+}
