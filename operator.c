@@ -17,6 +17,19 @@ Node* copyAsInteger(Node* src) {
     return newHead;
 }
 
+// 0으로 못 나누게 설정
+int isZero(Node* head) {
+    Node* curr = head;
+    while (curr != NULL) {
+        // 소수점(-1)과 음수 기호(-2)가 아닌 데이터가 0보다 크면 0이 아님
+        if (curr->data != -1 && curr->data != -2 && curr->data != 0) {
+            return 0;
+        }
+        curr = curr->next;
+    }
+    return 1; 
+}
+
 
 // 문자열 리스트로 변환
 Node* stringToList(char* str) {
@@ -321,6 +334,11 @@ Node* integerDivOnly(Node* A, Node* B) {
 
 // 소수 나눗셈 
 Node* division(Node* A, Node* B) {
+
+    if (isZero(B)) {
+        fprintf(stderr, "0으로 나눌 수 없습니다\n");
+        exit(1);
+    }
     
     alignDecimals(A, B);
 
