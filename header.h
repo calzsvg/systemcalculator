@@ -6,11 +6,22 @@
 #include <string.h>
 #include <ctype.h>
 
+#define MAX_STACK 100
+
 typedef struct Node {
     int data;
     struct Node* next;
     struct Node* prev;
 } Node;
+
+typedef struct NodeStack {
+    Node* items[MAX_STACK];
+    int top;
+} NodeStack;
+
+void initNodeStack(NodeStack* s);
+void pushNode(NodeStack* s, Node* n);
+Node* popNode(NodeStack* s);
 
 typedef struct StackNode {
     char data;
@@ -59,6 +70,3 @@ Node* add(Node* A, Node* B);
 Node* sub(Node* A, Node* B);
 Node* mult(Node* A, Node* B);
 Node* division(Node* A, Node* B);
-
-
-#endif

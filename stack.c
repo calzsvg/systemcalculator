@@ -41,3 +41,25 @@ char peek(Stack* s) {
     }
     return s->top->data;
 }
+
+void initNodeStack(NodeStack* s) {
+    s->top = -1;
+}
+
+void pushNode(NodeStack* s, Node* n) {
+    if (s->top < MAX_STACK - 1) {
+        s->items[++(s->top)] = n;
+    } else {
+        printf("계산 스택 오버플로우");
+        exit(1);
+    }
+}
+
+Node* popNode(NodeStack* s) {
+    if (s->top >= 0) {
+        return s->items[(s->top)--];
+    } else {
+        printf("잘못된 수식입니다.");
+        exit(1);
+    }
+}

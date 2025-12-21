@@ -1,53 +1,90 @@
 #include "header.h"
 
-int main() {
-    char s1[100], s2[100], op;
+void freeTokenListShallow(Token* head) {
+    Token* curr = head;
+    while (curr != NULL) {
+        Token* next = curr->next;
+        free(curr);
+        curr = next;
+    }
+}
 
-    // input 파일 열기
+int main() {
     FILE *fp = fopen("input", "r");
-    if (fscanf(fp, "%s %c %s", s1, &op, s2) != 3) {
-        printf("Error: 파일 내용 형식이 잘못되었습니다.\n");
+    if (!fp) {
+        printf("파일을 열 수 없습니다.");
+        return 1;
+    }
+
+    char buf[2048];
+    if (!fgets(buf, sizeof(buf), fp)) {
+        printf("읽을 수식이 없습니다.");
         fclose(fp);
         return 1;
     }
     fclose(fp);
+    buf[strcspn(buf, "\n")] = 0; // 줄바꿈 제거
+
+    printf("입력수식 : %s\n", buf);
 
 
-    printf("Input : %s %c %s\n", s1, op, s2);
+    Token *infixTokens = trans_token(buf);
+    Token *postfixTokens = infix_postfix(infixTokens);
+
+    freeTokenListShallow(infixTokens);
 
     
-    // 문자열 > 리스트
-    Node* n1 = stringToList(s1);
-    Node* n2 = stringToList(s2);
-    Node* result = NULL;
-    
-    if (op == '+') {
-        result = add(n1, n2);
+    NodeStack calcStack;
+    initNodeStack(&calcStack);
+
+    Token *curr = postfixTokens->next; 
+
+    while (curr != NULL) {
+        if (curr->type == 'N') {
+            pushNode(&calcStack, curr->number_head);
+        } 
+        else if (curr->type == 'O') {
+            Node* B = popNode(&calcStack);
+            Node* A = popNode(&calcStack);
+            Node* result = NULL;
+            char op = curr->op;
+
+            if (op == '+') result = add(A, B);
+            else if (op == '-') {
+                if (compare(A, B) >= 0) result = sub(A, B);
+                else {
+                    result = sub(B, A);
+                    insertAtHead(&result, -2); 
+                }
+            } 
+            else if (op == '*') result = mult(A, B);
+            else if (op == '/') result = division(A, B);
+
+        
+            freeList(A);
+            freeList(B);
+
+            pushNode(&calcStack, result);
+        }
+        curr = curr->next;
+    }
+
+
+    freeTokenListShallow(postfixTokens);
+
+    if (calcStack.top == 0) { 
+        Node* finalResult = popNode(&calcStack);
+        printf("답 : ");
+        printList(finalResult);
+        freeList(finalResult); 
     } 
-    else if (op == '-') {
-        if (compare(n1, n2) >= 0) {
-            result = sub(n1, n2);
-        } else {
-            result = sub(n2, n1);       
-            insertAtHead(&result, -2);
+    else {
+        printf("계산 오류");
+        while (calcStack.top != -1) {
+            Node* leftover = popNode(&calcStack);
+            freeList(leftover);
         }
     }
-    else if (op == '*') {  
-        result = mult(n1, n2);
-    }
-    else if (op == '/') {
-        result = division(n1, n2); 
-    }
-
-
-    // 결과 출력
-    printf("Result : ");
-    printList(result);
-
-    // 메모리 해제
-    freeList(n1);
-    freeList(n2);
-    freeList(result);
 
     return 0;
 }
