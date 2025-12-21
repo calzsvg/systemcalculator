@@ -239,179 +239,62 @@ Node* multone(Node* head, int digit) {
 
 // 전체 곱셈 (소수점 처리 수정)
 Node* mult(Node* A, Node* B) {
-    // 0인지 확인 (단순 0 혹은 0.0 등)
-    // 리스트가 '0' 하나뿐인 경우만 빠르게 처리하거나, 아래 로직에 맡김.
-    if ((A->data == 0 && A->next == NULL) || (B->data == 0 && B->next == NULL)) {
-        return stringToList("0");
-    }
+    if (A == NULL || B == NULL) return stringToList("0");
 
-    // 소수점 자릿수 미리 계산
     int cntA = getDecimalCount(A);
     int cntB = getDecimalCount(B);
-    int totalDecimals = cntA + cntB;
-
-    // 정수 곱셈 수행 (소수점 무시)
+    
+    // 곱셈 중에는 소수점이 없는 '정수 복사본'으로 계산하여 alignDecimals의 노드 생성을 막음
+    Node* intA = copyAsInteger(A);
+    Node* intB = copyAsInteger(B);
+    
     Node* result = stringToList("0");
-    Node* tB = getTail(B);
+    Node* tB = getTail(intB);
     int shift = 0;
 
     while (tB != NULL) {
         // 소수점 건너뜀
-        if (tB->data == -1) {
-            tB = tB->prev;
-            continue;
-        }
-
-        int digit = tB->data;
+        if (tB->data == -1) { tB = tB->prev; continue; }
         
-        if (digit != 0) {
-            // 소수점을 무시하고 정수 곱셈 수행
-            Node* partial = multone(A, digit);
-            
-            // 자릿수 시프트 (10의 거듭제곱 꼴 곱셈)
-            for (int i = 0; i < shift; i++) {
-                appendNode(&partial, 0); 
-            }
-            Node* newResult = add(result, partial);
-            
-            freeList(result);
-            freeList(partial);
-            
-            result = newResult;
-        }
-
+        // 소수점을 무시하고 정수 곱셈 수행
+        Node* partial = multone(intA, tB->data);
+        
+        // 자릿수 시프트 (10의 거듭제곱 꼴 곱셈)
+        for (int i = 0; i < shift; i++) appendNode(&partial, 0);
+        
+        Node* tempSum = add(result, partial);
+        
+    
+        freeList(result);
+        freeList(partial);
+        
+        result = tempSum;
         shift++;
         tB = tB->prev;
     }
-    
+
     // 결과에 소수점 합침
+    int totalDecimals = cntA + cntB;
     if (totalDecimals > 0) {
-        Node* curr = getTail(result);
+        Node* dotPos = getTail(result);
         
         // 소수점 위치 (뒤에서부터 totalDecimals 만큼 이동)
         for (int i = 0; i < totalDecimals; i++) {
-            if (curr->prev == NULL) {
-                // 자릿수가 부족하면 앞에 0 추가 (예: 12 -> 012 -> 0.12)
-                insertAtHead(&result, 0);
-                curr = result; // curr는 새로 추가된 맨 앞 '0'을 가리킴
-            } else {
-                curr = curr->prev;
-            }
+            if (dotPos && dotPos->prev == NULL) insertAtHead(&result, 0);
+            else if (dotPos) dotPos = dotPos->prev;
         }
-        // curr 위치 바로 뒤에 소수점(-1) 노드 삽입
-        // (예: 123, 소수점 1자리 -> 2(curr) 뒤에 점 -> 12.3)
-        Node* dotNode = createNode(-1);
-        dotNode->next = curr->next;
-        dotNode->prev = curr;
-        
-        if (curr->next != NULL) {
-            curr->next->prev = dotNode;
+        if (dotPos) {
+            Node* dot = createNode(-1);
+            dot->next = dotPos->next;
+            dot->prev = dotPos;
+            if (dotPos->next) dotPos->next->prev = dot;
+            dotPos->next = dot;
         }
-        curr->next = dotNode;
     }
 
-    // 불필요한 앞쪽 0 제거
-    removeLeadingZeros(&result);
-
-    // .1 같이 나올경우 0.1로 변환
-    if (result->data == -1) {
-        insertAtHead(&result, 0);
-    }
-
-    return result;
-}
-
-
-// 나눗셈
-
-// 정수 나눗셈
-Node* integerDivOnly(Node* A, Node* B) {
-    Node* quotient = NULL;
-    Node* remainder = stringToList("0");
-    Node* curr = A;
-
-
-    while (curr != NULL) {
-        appendNode(&remainder, curr->data);
-        removeLeadingZeros(&remainder);
-
-        int count = 0;
-        // 뺄셈 반복
-        while (compare(remainder, B) >= 0) {
-            Node* temp = sub(remainder, B);
-            freeList(remainder);
-            remainder = temp;
-            count++;
-        }
-        appendNode(&quotient, count);
-        curr = curr->next;
-    }
-    
-    removeLeadingZeros(&quotient);
-    freeList(remainder);
-    return quotient;
-}
-
-// 소수 나눗셈 
-Node* division(Node* A, Node* B) {
-    // 원본 수가 수정되지 않도록 복사해서 계산
-    Node* copyA = deepCopy(A);
-    Node* copyB = deepCopy(B);
-    alignDecimals(copyA, copyB);
-
-    // 소수점 제거
-    Node* intA = copyAsInteger(copyA);
-    Node* intB = copyAsInteger(copyB);
-
-    // 리스트 해제
-    freeList(copyA);
-    freeList(copyB);
-
-    // 정수 나눗셈
-    Node* result = integerDivOnly(intA, intB);
-    Node* prod = mult(result, intB);
-    Node* remainder = sub(intA, prod);
-    freeList(prod);
-
-    // 나머지 0이면 바로 리턴
-    if (remainder->data == 0 && remainder->next == NULL) {
-        freeList(remainder);
-        freeList(intA);
-        freeList(intB);
-        return result;
-    }
-
-    // 소수점 아래 계산
-    appendNode(&result, -1); // '.' 추가
-
-    int precision = 12; // 12자리까지 계산
-    for (int i = 0; i < precision; i++) {
-        if (remainder->data == 0 && remainder->next == NULL) break;
-
-        // 나머지 * 10 > 다시 다음 자릿수 계산
-        appendNode(&remainder, 0); 
-        removeLeadingZeros(&remainder);
-
-        Node* digitNode = integerDivOnly(remainder, intB);
-        
-        // digitNode 앞에 0이 붙어있을 수 있기 때문에 tail값 사용
-        appendNode(&result, getTail(digitNode)->data);
-
-        // 다음 나머지 계산
-        Node* tempProd = mult(digitNode, intB);
-        Node* nextRem = sub(remainder, tempProd);
-
-        freeList(remainder);
-        freeList(tempProd);
-        freeList(digitNode);
-
-        remainder = nextRem;
-    }
-
-    // 메모리 해제
-    freeList(remainder);
     freeList(intA);
     freeList(intB);
-
+    removeLeadingZeros(&result);
     return result;
 }
+    

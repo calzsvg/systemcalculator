@@ -37,7 +37,8 @@ void printList(Node* head) {
 
     while (curr != NULL) {
         if (curr->data == -1) printf("."); // 소수점
-        else if (curr->data >= 0) printf("%d", curr->data); // 숫자만
+        else if (curr->data == -2) printf("-");  // 마이너스
+        else printf("%d", curr->data);
         curr = curr->next;
     }
     printf("\n");
@@ -51,4 +52,3 @@ void freeList(Node* head) {
         curr = next;
     }
 }
- 
