@@ -43,16 +43,18 @@ char peek(Stack* s) {
 }
 
 void initNodeStack(NodeStack* s) {
-    s->top = -1;
+    s->top = NULL;
 }
 
 void pushNode(NodeStack* s, Node* n) {
-    if (s->top < MAX_STACK - 1) {
-        s->items[++(s->top)] = n;
-    } else {
-        printf("계산 스택 오버플로우");
+    NodeStackNode* newNode = (NodeStackNode*)malloc(sizeof(NodeStackNode));
+    if (newNode == NULL) {
+        printf("메모리 초과");
         exit(1);
     }
+    newNode->data = n;
+    newNode->next = s->top;
+    s->top = newNode;
 }
 
 Node* popNode(NodeStack* s) {

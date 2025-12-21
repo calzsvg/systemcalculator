@@ -72,7 +72,7 @@ int main() {
 
     freeTokenListShallow(postfixTokens);
 
-    if (calcStack.top == 0) { 
+    if (calcStack.top != NULL && calcStack.top->next == NULL) { 
         Node* finalResult = popNode(&calcStack);
         printf("답 : ");
         printList(finalResult);
@@ -80,7 +80,7 @@ int main() {
     } 
     else {
         printf("계산 오류");
-        while (calcStack.top != -1) {
+        while (calcStack.top != NULL) {
             Node* leftover = popNode(&calcStack);
             freeList(leftover);
         }
