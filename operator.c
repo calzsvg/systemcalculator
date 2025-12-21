@@ -355,8 +355,8 @@ Node* division(Node* A, Node* B) {
 
         Node* digitNode = integerDivOnly(remainder, intB);
         
-        // digitNode 앞에 0이 붙어있을 수 있기 때문에 tail값 사용
-        appendNode(&result, getTail(digitNode)->data);
+        removeLeadingZeros(&digitNode); 
+	    appendNode(&result, digitNode->data);
 
         // 다음 나머지 계산
         Node* tempProd = mult(digitNode, intB);
