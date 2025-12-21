@@ -17,18 +17,6 @@ Node* copyAsInteger(Node* src) {
     return newHead;
 }
 
-// 원본용 리스트 깊은 복사
-Node* deepCopy(Node* src) {
-    Node* newHead = NULL;
-    Node* curr = src;
-    if (curr == NULL) return stringToList("0");
-    
-    while (curr != NULL) {
-        appendNode(&newHead, curr->data);
-        curr = curr->next;
-    }
-    return newHead;
-}
 
 // 문자열 리스트로 변환
 Node* stringToList(char* str) {
@@ -64,7 +52,7 @@ int getDecimalCount(Node* head) {
     return foundDot ? count : 0;
 }
 
-// 소수점 자릿수를 똑같이 맞춤 (덧셈 뺄셈)
+// 소수점 자릿수를 똑같이 맞춤
 void alignDecimals(Node* A, Node* B) {
     int decimalA = getDecimalCount(A);
     int decimalB = getDecimalCount(B);
@@ -278,7 +266,7 @@ Node* mult(Node* A, Node* B) {
     if (totalDecimals > 0) {
         Node* dotPos = getTail(result);
         
-        // 소수점 위치 (뒤에서부터 totalDecimals 만큼 이동)
+        // 소수점 위치 (뒤에서부터 totalDecimals 만큼 이동)S
         for (int i = 0; i < totalDecimals; i++) {
             if (dotPos && dotPos->prev == NULL) insertAtHead(&result, 0);
             else if (dotPos) dotPos = dotPos->prev;
@@ -298,6 +286,9 @@ Node* mult(Node* A, Node* B) {
     return result;
 }
     
+ 
+
+
 // 나눗셈
 
 // 정수 나눗셈
@@ -330,18 +321,12 @@ Node* integerDivOnly(Node* A, Node* B) {
 
 // 소수 나눗셈 
 Node* division(Node* A, Node* B) {
-    // 원본 수가 수정되지 않도록 복사해서 계산
-    Node* copyA = deepCopy(A);
-    Node* copyB = deepCopy(B);
-    alignDecimals(copyA, copyB);
+    
+    alignDecimals(A, B);
 
     // 소수점 제거
-    Node* intA = copyAsInteger(copyA);
-    Node* intB = copyAsInteger(copyB);
-
-    // 리스트 해제
-    freeList(copyA);
-    freeList(copyB);
+    Node* intA = copyAsInteger(A);
+    Node* intB = copyAsInteger(B);
 
     // 정수 나눗셈
     Node* result = integerDivOnly(intA, intB);
