@@ -62,8 +62,15 @@ Token* trans_token(const char *infix_str) {
     }
     
     int j = 0;
+    
     for (int i = 0; i < clean_str_len; i++) {
         char x = clean_str[i];
+
+        if (x == '-') {
+            if (i == 0 || clean_str[i - 1] == '(') {
+                temp_str[j++] = '0';
+            }
+        }
 
         if (!isdigit(x) && !strchr("+-*/().", x)) {
             free(clean_str);
@@ -75,7 +82,6 @@ Token* trans_token(const char *infix_str) {
             temp_str[j++] = x;
             temp_str[j++] = '*';
         } 
-
         else if (x == ')' && (i + 1 < clean_str_len) && (isdigit(clean_str[i + 1]) || clean_str[i + 1] == '(')) {
             temp_str[j++] = x;
             temp_str[j++] = '*';
